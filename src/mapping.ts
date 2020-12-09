@@ -89,6 +89,7 @@ export function handleTransfer(event: TransferCall): void {
   status.transferVolume = status.transferVolume.plus(event.inputs.wad)
   transfer.from = event.from.toHex()
   transfer.to = event.inputs.dst.toHex()
+  transfer.value = event.inputs.wad
 
   from.balance = from.balance.minus(event.inputs.wad)
   to.balance = to.balance.plus(event.inputs.wad)
@@ -111,6 +112,7 @@ export function handleTransferFrom(event: TransferFromCall): void {
   transfer.caller = event.from.toHex()
   transfer.from = event.inputs.src.toHex()
   transfer.to = event.inputs.dst.toHex()
+  transfer.value = event.inputs.wad
 
   from.balance = from.balance.minus(event.inputs.wad)
   to.balance = to.balance.plus(event.inputs.wad)
