@@ -16,7 +16,8 @@ dataSources:
       apiVersion: 0.0.4
       language: wasm/assemblyscript
       entities:
-        - Balance
+        - Account
+        - Allowance
         - Status
         - Transfer
         - Deposit
