@@ -1,0 +1,39 @@
+specVersion: 0.0.2
+description: Wrapped Ethereum
+repository: https://github.com/Ryabina-io/weth-subgraph
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: WETH
+    network: mainnet
+    source:
+      address: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
+      abi: WETH
+      startBlock: 4719568
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - Balance
+        - Status
+        - Transfer
+        - Deposit
+        - Withdrawal
+      abis:
+        - name: WETH
+          file: ./abis/WETH.json
+      eventHandlers:
+        - event: Approval(indexed address,indexed address,uint256)
+          handler: handleApproval
+        - event: Deposit(indexed address,uint256)
+          handler: handleDeposit
+        - event: Withdrawal(indexed address,uint256)
+          handler: handleWithdrawal
+      callHandlers:
+        - function: transfer(address,uint256)
+          handler: handleTransfer
+        - function: transferFrom(address,address,uint256)
+          handler: handleTransferFrom
+      file: ./src/mapping.ts

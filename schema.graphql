@@ -1,0 +1,45 @@
+type Account @entity {
+  id: ID!
+  address: Bytes!
+  balance: BigInt!
+  transfersFrom: [Transfer!]! @derivedFrom(field: "from")
+  transfersTo: [Transfer!]! @derivedFrom(field: "to")
+  delegatedTransfes: [Transfer!]! @derivedFrom(field: "caller")
+  deposits: [Deposit!]! @derivedFrom(field: "account")
+  withdrawals: [Withdrawal!]! @derivedFrom(field: "account")
+  allowancesFrom: [Allowance!]! @derivedFrom(field: "from")
+  allowancesTo: [Allowance!]! @derivedFrom(field: "to")
+}
+
+type Allowance @entity {
+  id: ID!
+  from: Account!
+  to: Account!
+  value: BigInt!
+}
+
+type Status @entity {
+  id: ID!
+  totalSupply: BigInt!
+  transferVolume: BigInt!
+}
+
+type Transfer @entity {
+  id: ID!
+  from: Account!
+  to: Account!
+  value: BigInt!
+  caller: Account
+}
+
+type Deposit @entity {
+  id: ID!
+  account: Account!
+  value: BigInt!
+}
+
+type Withdrawal @entity {
+  id: ID!
+  account: Account!
+  value: BigInt!
+}
