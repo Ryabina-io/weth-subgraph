@@ -2,6 +2,7 @@
   "name": "weth-subgraph",
   "version": "0.1.0",
   "scripts": {
+    "build-contract": "solc contracts/WETH.sol --abi -o abis --overwrite && solc contracts/WETH.sol --bin -o bin --overwrite",
     "create": "graph create Ryabina-io/weth-subgraph --node https://api.thegraph.com/deploy/",
     "create-local": "graph create Ryabina-io/weth-subgraph --node http://127.0.0.1:8020",
     "codegen": "graph codegen",
