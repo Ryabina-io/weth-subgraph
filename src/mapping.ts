@@ -91,6 +91,7 @@ export function handleTransfer(event: TransferCall): void {
   transfer.save()
   to.save()
   from.save()
+  status.save()
 }
 export function handleTransferFrom(event: TransferFromCall): void {
   let status = ensureStatus()
@@ -114,4 +115,5 @@ export function handleTransferFrom(event: TransferFromCall): void {
   to.save()
   from.save()
   caller.save()
+  status.save()
 }
