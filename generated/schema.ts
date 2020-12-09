@@ -42,15 +42,6 @@ export class Account extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get address(): Bytes {
-    let value = this.get("address");
-    return value.toBytes();
-  }
-
-  set address(value: Bytes) {
-    this.set("address", Value.fromBytes(value));
-  }
-
   get balance(): BigInt {
     let value = this.get("balance");
     return value.toBigInt();

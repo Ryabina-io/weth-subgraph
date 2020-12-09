@@ -6,7 +6,6 @@ function ensureAccount(address: Address): Account {
   let account = Account.load(address.toHex())
   if (account === null) {
     account = new Account(address.toHex())
-    account.address = address
     account.balance = BigInt.fromI32(0)
   }
   return account as Account

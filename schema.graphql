@@ -4,8 +4,6 @@ Base Account type
 type Account @entity {
   "Id is address of account"
   id: ID!
-  "Address of account"
-  address: Bytes!
   "Balance of account"
   balance: BigInt!
   "List of transfers where account is sender"
@@ -32,7 +30,7 @@ type Account @entity {
 Records containing all alowances
 """
 type Allowance @entity {
-  "from.toHex() + '-' + to.hex()"
+  "From Address + To Address"
   id: ID!
   "Owner of balance"
   from: Account!
@@ -42,10 +40,10 @@ type Allowance @entity {
   value: BigInt!
 }
 """
-Describes approve transsaction
+Describes approve transaction
 """
 type Approve @entity {
-  "transaction.hash.toHex() + '-' + event.logIndex.toHex()"
+  "Transaction hash + Event log index"
   id: ID!
   "Owner of balance"
   from: Account!
@@ -58,7 +56,7 @@ type Approve @entity {
 Singleton. Global status record
 """
 type Status @entity {
-  "always is 0"
+  "Always is 0"
   id: ID!
   "Amount of WETH tokens (equals to contract balance of ETH)"
   totalSupply: BigInt!
@@ -66,10 +64,10 @@ type Status @entity {
   transferVolume: BigInt!
 }
 """
-Describes transfer transsaction
+Describes transfer transaction
 """
 type Transfer @entity {
-  "transaction.hash.toHex() + '-' + transaction.index.toHex()"
+  "Transaction hash + Transaction index"
   id: ID!
   from: Account!
   to: Account!
@@ -78,24 +76,24 @@ type Transfer @entity {
   caller: Account
 }
 """
-Describes deposit transsaction
+Describes deposit transaction
 """
 type Deposit @entity {
-  "transaction.hash.toHex() + '-' + event.logIndex.toHex()"
+  "Transaction hash + Event log index"
   id: ID!
   "Who deposited"
   account: Account!
-  "Amount of ETH and WETH"
+  "Amount of deposited ETH"
   value: BigInt!
 }
 """
 Describes withdrawal transsaction
 """
 type Withdrawal @entity {
-  "transaction.hash.toHex() + '-' + event.logIndex.toHex()"
+  "Transaction hash + Event log index"
   id: ID!
   "Who withdrawed"
   account: Account!
-  "Amount of ETH and WETH"
+  "Amount of withdrawed WETH"
   value: BigInt!
 }
