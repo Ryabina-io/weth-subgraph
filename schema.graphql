@@ -1,45 +1,101 @@
+"""
+Base Account type
+"""
 type Account @entity {
+  "Id is address of account"
   id: ID!
+  "Address of account"
   address: Bytes!
+  "Balance of account"
   balance: BigInt!
+  "List of transfers where account is sender"
   transfersFrom: [Transfer!]! @derivedFrom(field: "from")
+  "List of transfers where account is reciever"
   transfersTo: [Transfer!]! @derivedFrom(field: "to")
+  "List of transfers where account sends tokens of another account (via approve)"
   delegatedTransfes: [Transfer!]! @derivedFrom(field: "caller")
+  "List of deposit transactions (ETH to WETH swaps)"
   deposits: [Deposit!]! @derivedFrom(field: "account")
+  "List of withdrawal transactions (WETH to ETH swaps)"
   withdrawals: [Withdrawal!]! @derivedFrom(field: "account")
+  "List of allowances approved by account"
   allowancesFrom: [Allowance!]! @derivedFrom(field: "from")
+  "List of allowances to this account"
   allowancesTo: [Allowance!]! @derivedFrom(field: "to")
+  "List of approve transaction made by account"
+  approvesFrom: [Approve!]! @derivedFrom(field: "from")
+  "List of approve transaction for this account"
+  approvesTo: [Approve!]! @derivedFrom(field: "to")
 }
 
+"""
+Records containing all alowances
+"""
 type Allowance @entity {
+  "from.toHex() + '-' + to.hex()"
   id: ID!
+  "Owner of balance"
   from: Account!
+  "Allowance owner"
   to: Account!
+  "Amount of remain tokens"
   value: BigInt!
 }
-
-type Status @entity {
+"""
+Describes approve transsaction
+"""
+type Approve @entity {
+  "transaction.hash.toHex() + '-' + event.logIndex.toHex()"
   id: ID!
+  "Owner of balance"
+  from: Account!
+  "Allowance owner"
+  to: Account!
+  "Amount of tokens to approve"
+  value: BigInt!
+}
+"""
+Singleton. Global status record
+"""
+type Status @entity {
+  "always is 0"
+  id: ID!
+  "Amount of WETH tokens (equals to contract balance of ETH)"
   totalSupply: BigInt!
+  "Total WETH transfer volume"
   transferVolume: BigInt!
 }
-
+"""
+Describes transfer transsaction
+"""
 type Transfer @entity {
+  "transaction.hash.toHex() + '-' + transaction.index.toHex()"
   id: ID!
   from: Account!
   to: Account!
   value: BigInt!
+  "If transfer made by transferFrom caller is author of transaction"
   caller: Account
 }
-
+"""
+Describes deposit transsaction
+"""
 type Deposit @entity {
+  "transaction.hash.toHex() + '-' + event.logIndex.toHex()"
   id: ID!
+  "Who deposited"
   account: Account!
+  "Amount of ETH and WETH"
   value: BigInt!
 }
-
+"""
+Describes withdrawal transsaction
+"""
 type Withdrawal @entity {
+  "transaction.hash.toHex() + '-' + event.logIndex.toHex()"
   id: ID!
+  "Who withdrawed"
   account: Account!
+  "Amount of ETH and WETH"
   value: BigInt!
 }

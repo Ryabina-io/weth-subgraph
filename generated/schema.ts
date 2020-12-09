@@ -122,6 +122,24 @@ export class Account extends Entity {
   set allowancesTo(value: Array<string>) {
     this.set("allowancesTo", Value.fromStringArray(value));
   }
+
+  get approvesFrom(): Array<string> {
+    let value = this.get("approvesFrom");
+    return value.toStringArray();
+  }
+
+  set approvesFrom(value: Array<string>) {
+    this.set("approvesFrom", Value.fromStringArray(value));
+  }
+
+  get approvesTo(): Array<string> {
+    let value = this.get("approvesTo");
+    return value.toStringArray();
+  }
+
+  set approvesTo(value: Array<string>) {
+    this.set("approvesTo", Value.fromStringArray(value));
+  }
 }
 
 export class Allowance extends Entity {
@@ -143,6 +161,64 @@ export class Allowance extends Entity {
 
   static load(id: string): Allowance | null {
     return store.get("Allowance", id) as Allowance | null;
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get from(): string {
+    let value = this.get("from");
+    return value.toString();
+  }
+
+  set from(value: string) {
+    this.set("from", Value.fromString(value));
+  }
+
+  get to(): string {
+    let value = this.get("to");
+    return value.toString();
+  }
+
+  set to(value: string) {
+    this.set("to", Value.fromString(value));
+  }
+
+  get value(): BigInt {
+    let value = this.get("value");
+    return value.toBigInt();
+  }
+
+  set value(value: BigInt) {
+    this.set("value", Value.fromBigInt(value));
+  }
+}
+
+export class Approve extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id !== null, "Cannot save Approve entity without an ID");
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save Approve entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("Approve", id.toString(), this);
+  }
+
+  static load(id: string): Approve | null {
+    return store.get("Approve", id) as Approve | null;
   }
 
   get id(): string {

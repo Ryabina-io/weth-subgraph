@@ -1,5 +1,5 @@
 import { Address, BigInt } from "@graphprotocol/graph-ts";
-import { Account, Allowance, Status, Deposit, Withdrawal, Transfer } from "../generated/schema";
+import { Account, Allowance, Status, Deposit, Withdrawal, Transfer, Approve } from "../generated/schema";
 import { Approval as ApprovalEvent, Deposit as DepositEvent, TransferCall, TransferFromCall, Withdrawal as WithdrawalEvent } from "../generated/WETH/WETH";
 
 function ensureAccount(address: Address): Account {
@@ -38,17 +38,23 @@ export function handleApproval(event: ApprovalEvent): void {
   let from = ensureAccount(event.params.src)
   let to = ensureAccount(event.params.guy)
   let allowance = ensureAllowance(event.params.src, event.params.guy)
+  let approve = new Approve(event.transaction.hash.toHex() + '-' + event.logIndex.toHex())
+
+  approve.value = event.params.wad
+  approve.from = event.params.src.toHex()
+  approve.to = event.params.guy.toHex()
 
   allowance.value = event.params.wad
 
   from.save()
   to.save()
   allowance.save()
+  approve.save()
 }
 export function handleDeposit(event: DepositEvent): void {
   let dst = ensureAccount(event.params.dst)
   let status = ensureStatus()
-  let deposit = new Deposit(event.transaction.hash.toHex() + "-" + event.logIndex.toString())
+  let deposit = new Deposit(event.transaction.hash.toHex() + "-" + event.logIndex.toHex())
 
   dst.balance = dst.balance.plus(event.params.wad)
   status.totalSupply = status.totalSupply.plus(event.params.wad)
@@ -63,7 +69,7 @@ export function handleDeposit(event: DepositEvent): void {
 export function handleWithdrawal(event: WithdrawalEvent): void {
   let src = ensureAccount(event.params.src)
   let status = ensureStatus()
-  let withdrawal = new Withdrawal(event.transaction.hash.toHex() + "-" + event.logIndex.toString())
+  let withdrawal = new Withdrawal(event.transaction.hash.toHex() + "-" + event.logIndex.toHex())
 
   src.balance = src.balance.minus(event.params.wad)
   status.totalSupply = status.totalSupply.minus(event.params.wad)
