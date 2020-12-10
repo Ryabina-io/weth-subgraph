@@ -1,24 +1,28 @@
-import { Address, BigInt } from "@graphprotocol/graph-ts";
+import { Address, BigInt, Bytes, log } from "@graphprotocol/graph-ts";
 import { Account, Allowance, Status, Deposit, Withdrawal, Transfer, Approve } from "../generated/schema";
-import { Approval as ApprovalEvent, Deposit as DepositEvent, TransferCall, TransferFromCall, Withdrawal as WithdrawalEvent } from "../generated/WETH/WETH";
+import { Approval as ApprovalEvent, Deposit as DepositEvent, Withdrawal as WithdrawalEvent, Transfer as TransferEvent, WETH } from "../generated/WETH/WETH";
 
 function ensureAccount(address: Address): Account {
-  let account = Account.load(address.toHex())
+  let account = Account.load(address.toHexString())
   if (account === null) {
-    account = new Account(address.toHex())
+    account = new Account(address.toHexString())
     account.balance = BigInt.fromI32(0)
+    account.allowancesFromList = []
   }
   return account as Account
 }
 
-function ensureAllowance(from: Address, to: Address): Allowance {
-  let id = from.toHex() + '-' + to.toHex()
+function ensureAllowance(from: Account, to: Account): Allowance {
+  let id = from.id + '-' + to.id
   let allowance = Allowance.load(id)
   if (allowance === null) {
     allowance = new Allowance(id)
-    allowance.from = from.toHex()
-    allowance.to = to.toHex()
+    allowance.from = from.id
+    allowance.to = to.id
     allowance.value = BigInt.fromI32(0)
+    let newAllowenceFromList = from.allowancesFromList
+    newAllowenceFromList.push(Bytes.fromHexString(to.id) as Bytes)
+    from.allowancesFromList = newAllowenceFromList
   }
   return allowance as Allowance
 }
@@ -36,12 +40,12 @@ function ensureStatus(): Status {
 export function handleApproval(event: ApprovalEvent): void {
   let from = ensureAccount(event.params.src)
   let to = ensureAccount(event.params.guy)
-  let allowance = ensureAllowance(event.params.src, event.params.guy)
-  let approve = new Approve(event.transaction.hash.toHex() + '-' + event.logIndex.toHex())
+  let allowance = ensureAllowance(from, to)
+  let approve = new Approve(event.transaction.hash.toHexString() + '-' + event.logIndex.toHexString())
 
   approve.value = event.params.wad
-  approve.from = event.params.src.toHex()
-  approve.to = event.params.guy.toHex()
+  approve.from = event.params.src.toHexString()
+  approve.to = event.params.guy.toHexString()
 
   allowance.value = event.params.wad
 
@@ -53,12 +57,12 @@ export function handleApproval(event: ApprovalEvent): void {
 export function handleDeposit(event: DepositEvent): void {
   let dst = ensureAccount(event.params.dst)
   let status = ensureStatus()
-  let deposit = new Deposit(event.transaction.hash.toHex() + "-" + event.logIndex.toHex())
+  let deposit = new Deposit(event.transaction.hash.toHexString() + "-" + event.logIndex.toHexString())
 
   dst.balance = dst.balance.plus(event.params.wad)
   status.totalSupply = status.totalSupply.plus(event.params.wad)
 
-  deposit.account = event.params.dst.toHex()
+  deposit.account = event.params.dst.toHexString()
   deposit.value = event.params.wad
 
   deposit.save()
@@ -68,59 +72,45 @@ export function handleDeposit(event: DepositEvent): void {
 export function handleWithdrawal(event: WithdrawalEvent): void {
   let src = ensureAccount(event.params.src)
   let status = ensureStatus()
-  let withdrawal = new Withdrawal(event.transaction.hash.toHex() + "-" + event.logIndex.toHex())
+  let withdrawal = new Withdrawal(event.transaction.hash.toHexString() + "-" + event.logIndex.toHexString())
 
   src.balance = src.balance.minus(event.params.wad)
   status.totalSupply = status.totalSupply.minus(event.params.wad)
 
-  withdrawal.account = event.params.src.toHex()
+  withdrawal.account = event.params.src.toHexString()
   withdrawal.value = event.params.wad
 
   withdrawal.save()
   src.save()
   status.save()
 }
-export function handleTransfer(event: TransferCall): void {
+export function handleTransfer(event: TransferEvent): void {
+  let contract = WETH.bind(event.address)
   let status = ensureStatus()
-  let from = ensureAccount(event.from)
-  let to = ensureAccount(event.inputs.dst)
-  let transfer = new Transfer(event.transaction.hash.toHex() + '-' + event.transaction.index.toHex())
+  let from = ensureAccount(event.params.src)
+  let to = ensureAccount(event.params.dst)
+  let transfer = new Transfer(event.transaction.hash.toHexString() + "-" + event.logIndex.toHexString())
 
-  status.transferVolume = status.transferVolume.plus(event.inputs.wad)
-  transfer.from = event.from.toHex()
-  transfer.to = event.inputs.dst.toHex()
-  transfer.value = event.inputs.wad
-
-  from.balance = from.balance.minus(event.inputs.wad)
-  to.balance = to.balance.plus(event.inputs.wad)
-
+  status.transferVolume = status.transferVolume.plus(event.params.wad)
+  transfer.from = event.params.src.toHexString()
+  transfer.to = event.params.dst.toHexString()
+  transfer.value = event.params.wad
+  to.balance = to.balance.plus(event.params.wad)
+  from.balance = from.balance.minus(event.params.wad)
+  let allowancesFromListStrings = from.get("allowancesFromList").toBytesArray() as Address[]
+  for (let i = 0; i < allowancesFromListStrings.length; i++) {
+    let allowanceTo = ensureAccount(allowancesFromListStrings[i])
+    let newAllowanceValue = contract.allowance(event.params.src, allowancesFromListStrings[i])
+    let allowance = ensureAllowance(from, allowanceTo)
+    if (!newAllowanceValue.equals(allowance.value)) {
+      allowance.value = newAllowanceValue
+      transfer.caller = allowance.to
+      allowance.save()
+      break
+    }
+  }
   transfer.save()
   to.save()
   from.save()
-  status.save()
-}
-export function handleTransferFrom(event: TransferFromCall): void {
-  let status = ensureStatus()
-  let caller = ensureAccount(event.from)
-  let from = ensureAccount(event.inputs.src)
-  let to = ensureAccount(event.inputs.dst)
-  let transfer = new Transfer(event.transaction.hash.toHex() + '-' + event.transaction.index.toHex())
-  let allowance = ensureAllowance(event.inputs.src, event.from)
-
-  status.transferVolume = status.transferVolume.plus(event.inputs.wad)
-  allowance.value = allowance.value.minus(event.inputs.wad)
-  transfer.caller = event.from.toHex()
-  transfer.from = event.inputs.src.toHex()
-  transfer.to = event.inputs.dst.toHex()
-  transfer.value = event.inputs.wad
-
-  from.balance = from.balance.minus(event.inputs.wad)
-  to.balance = to.balance.plus(event.inputs.wad)
-
-  allowance.save()
-  transfer.save()
-  to.save()
-  from.save()
-  caller.save()
   status.save()
 }

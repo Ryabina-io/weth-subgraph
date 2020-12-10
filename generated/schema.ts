@@ -131,6 +131,26 @@ export class Account extends Entity {
   set approvesTo(value: Array<string>) {
     this.set("approvesTo", Value.fromStringArray(value));
   }
+
+  get allowancesFromList(): Array<Bytes> | null {
+    let value = this.get("allowancesFromList");
+    if (value === null) {
+      return null;
+    } else {
+      return value.toBytesArray();
+    }
+  }
+
+  set allowancesFromList(value: Array<Bytes> | null) {
+    if (value === null) {
+      this.unset("allowancesFromList");
+    } else {
+      this.set(
+        "allowancesFromList",
+        Value.fromBytesArray(value as Array<Bytes>)
+      );
+    }
+  }
 }
 
 export class Allowance extends Entity {

@@ -24,6 +24,7 @@ type Account @entity {
   approvesFrom: [Approve!]! @derivedFrom(field: "from")
   "List of approve transaction for this account"
   approvesTo: [Approve!]! @derivedFrom(field: "to")
+  allowancesFromList: [Bytes!]
 }
 
 """
@@ -67,7 +68,7 @@ type Status @entity {
 Describes transfer transaction
 """
 type Transfer @entity {
-  "Transaction hash + Transaction index"
+  "Transaction hash + Event log index"
   id: ID!
   from: Account!
   to: Account!
