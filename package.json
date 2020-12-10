@@ -3,12 +3,12 @@
   "version": "0.1.0",
   "scripts": {
     "build-contract": "solc contracts/WETH.sol --abi -o abis --overwrite && solc contracts/WETH.sol --bin -o bin --overwrite",
-    "create": "graph create Ryabina-io/weth-subgraph --node https://api.thegraph.com/deploy/",
-    "create-local": "graph create Ryabina-io/weth-subgraph --node http://127.0.0.1:8020",
+    "create": "graph create Ryabina-io/weth --node https://api.thegraph.com/deploy/",
+    "create-local": "graph create Ryabina-io/weth --node http://127.0.0.1:8020",
     "codegen": "graph codegen",
     "build": "graph build",
-    "deploy": "graph deploy Ryabina-io/weth-subgraph --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/",
-    "deploy-local": "graph deploy Ryabina-io/weth-subgraph --ipfs http://localhost:5001 --node http://127.0.0.1:8020"
+    "deploy": "graph deploy Ryabina-io/weth --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/",
+    "deploy-local": "graph deploy Ryabina-io/weth --ipfs http://localhost:5001 --node http://127.0.0.1:8020"
   },
   "devDependencies": {
     "@graphprotocol/graph-cli": "^0.18.0",
