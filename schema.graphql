@@ -52,6 +52,10 @@ type Approve @entity {
   to: Account!
   "Amount of tokens to approve"
   value: BigInt!
+  "Block number"
+  block: BigInt!
+  "Tiestamp of transaction"
+  timestamp: BigInt!
 }
 """
 Singleton. Global status record
@@ -75,6 +79,10 @@ type Transfer @entity {
   value: BigInt!
   "If transfer made by transferFrom caller is author of transaction"
   caller: Account
+  "Block number"
+  block: BigInt!
+  "Tiestamp of transaction"
+  timestamp: BigInt!
 }
 """
 Describes deposit transaction
@@ -86,6 +94,10 @@ type Deposit @entity {
   account: Account!
   "Amount of deposited ETH"
   value: BigInt!
+  "Block number"
+  block: BigInt!
+  "Tiestamp of transaction"
+  timestamp: BigInt!
 }
 """
 Describes withdrawal transsaction
@@ -97,4 +109,8 @@ type Withdrawal @entity {
   account: Account!
   "Amount of withdrawed WETH"
   value: BigInt!
+  "Block number"
+  block: BigInt!
+  "Tiestamp of transaction"
+  timestamp: BigInt!
 }

@@ -46,6 +46,8 @@ export function handleApproval(event: ApprovalEvent): void {
   approve.value = event.params.wad
   approve.from = event.params.src.toHexString()
   approve.to = event.params.guy.toHexString()
+  approve.block = event.block.number
+  approve.timestamp = event.block.timestamp
 
   allowance.value = event.params.wad
 
@@ -65,6 +67,9 @@ export function handleDeposit(event: DepositEvent): void {
   deposit.account = event.params.dst.toHexString()
   deposit.value = event.params.wad
 
+  deposit.block = event.block.number
+  deposit.timestamp = event.block.timestamp
+
   deposit.save()
   dst.save()
   status.save()
@@ -79,6 +84,10 @@ export function handleWithdrawal(event: WithdrawalEvent): void {
 
   withdrawal.account = event.params.src.toHexString()
   withdrawal.value = event.params.wad
+
+
+  withdrawal.block = event.block.number
+  withdrawal.timestamp = event.block.timestamp
 
   withdrawal.save()
   src.save()
@@ -95,6 +104,10 @@ export function handleTransfer(event: TransferEvent): void {
   transfer.from = event.params.src.toHexString()
   transfer.to = event.params.dst.toHexString()
   transfer.value = event.params.wad
+
+  transfer.block = event.block.number
+  transfer.timestamp = event.block.timestamp
+
   to.balance = to.balance.plus(event.params.wad)
   from.balance = from.balance.minus(event.params.wad)
   let allowancesFromListStrings = from.get("allowancesFromList").toBytesArray() as Address[]
