@@ -108,8 +108,10 @@ export function handleTransfer(event: TransferEvent): void {
   transfer.block = event.block.number
   transfer.timestamp = event.block.timestamp
 
-  to.balance = to.balance.plus(event.params.wad)
-  from.balance = from.balance.minus(event.params.wad)
+  if(event.params.src != event.params.dst){ 
+    to.balance = to.balance.plus(event.params.wad)
+    from.balance = from.balance.minus(event.params.wad)
+  } 
   let allowancesFromListStrings = from.get("allowancesFromList").toBytesArray() as Address[]
   for (let i = 0; i < allowancesFromListStrings.length; i++) {
     let allowanceTo = ensureAccount(allowancesFromListStrings[i])
